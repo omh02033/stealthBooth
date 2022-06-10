@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인</title>
+</head>
+<body>
+  <h1>로그인페이지</h1>
+  <form action="/login" method="post" onsubmit="userCheck(event, this);">
+    <input type="text" name="username" id="username" placeholder="아이디">
+    <input type="password" name="password" id="password" placeholder="비밀번호">
+    <input type="submit" value="로그인">
+  </form>
+  <h2>SELECT * FROM users WHERE userid='<span id="i"></span>' AND password='<span id="p"></span>';</h2>
+  <h2 id="h"></h2>
+  <h2 id="flag"></h2>
+  <script>
+    const useridSpan = document.getElementById("i");
+    const passwdSpan = document.getElementById("p");
+    const flag = document.getElementById("flag");
+    const h = document.getElementById("h");
+    function userCheck(e, f) {
+      e.preventDefault();
+
+      useridSpan.innerHTML = f.username.value;
+      passwdSpan.innerHTML = f.password.value;
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/login');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState === 4 && xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          alert(data.msg);
+          if(data.flag) flag.innerHTML = data.flag;
+          h.innerHTML = `Hello ${data.username} !!`;
+        } else if (xhr.readyState === 4 && xhr.status === 400) {
+          const data = JSON.parse(xhr.responseText);
+          alert(data.msg);
+          f.password.value = "";
+        }
+      }
+      xhr.send(JSON.stringify({
+        username: f.username.value,
+        password: f.password.value
+      }));
+    }
+  </script>
+</body>
+</html>
